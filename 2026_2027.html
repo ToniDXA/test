@@ -1,0 +1,3078 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1,viewport-fit=cover" name="viewport"/>
+<meta content="#e9573f" name="theme-color"/>
+<title>香港紅日｜全球假期</title>
+<style>
+:root{
+ --bg:#f3f4f6;--card:#fff;--text:#151515;--muted:#737373;--line:#e5e7eb;
+ --hk:#e9573f;--hkbg:#fff0ed;--us:#3b82f6;--uk:#7c3aed;--jp:#10a36a;--cn:#f08a24;--tw:#e11d48;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang TC","Noto Sans TC",sans-serif}
+body:has(.monthToggle:checked){overflow:hidden}
+.app{width:min(1500px,100%);margin:auto;padding:clamp(12px,2vw,26px)}
+.hero{background:linear-gradient(135deg,#e9573f,#f26b51);color:#fff;border-radius:18px;padding:18px clamp(16px,2.5vw,28px);margin-bottom:12px;box-shadow:0 8px 24px rgba(233,87,63,.18)}
+h1{margin:0;font-size:clamp(23px,3vw,34px);letter-spacing:-.5px}
+.sub{margin-top:5px;font-size:clamp(11px,1.2vw,14px);opacity:.92}
+.yearNav{position:sticky;top:0;z-index:20;background:rgba(243,244,246,.9);backdrop-filter:blur(14px);padding:8px 0;display:flex;gap:7px}
+.yearNav a{text-decoration:none;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 14px;font-weight:700}
+.notice{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 13px;margin:0 0 15px;font-size:12px;color:var(--muted)}
+.notice b{color:var(--hk)}
+.yearHeader{display:flex;align-items:baseline;gap:9px;margin:18px 0 9px}
+h2{font-size:clamp(21px,2.5vw,28px);margin:0}
+.yearHeader span{color:var(--muted);font-size:11px}
+#year2027{display:none}
+#year2027:target{display:block}
+body:has(#year2027:target) #year2026{display:none}
+.yearGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.monthWrap{min-width:0}
+.monthToggle{position:absolute;opacity:0;pointer-events:none}
+.monthCard{display:block;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.035);cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
+.monthCard:active{transform:scale(.995)}
+.monthCardHeader{display:flex;align-items:center;justify-content:space-between;padding:11px 13px 7px}
+.monthTitle{font-size:clamp(15px,1.7vw,18px);font-weight:800}
+.monthCount{font-size:10px;color:var(--hk);font-weight:700}
+.mini{padding:0 10px 7px}
+.week,.days{display:grid;grid-template-columns:repeat(7,1fr)}
+.week span{text-align:center;font-size:9px;color:var(--muted);padding:3px 0}
+.day{height:clamp(27px,3vw,35px);display:flex;align-items:center;justify-content:center;font-size:clamp(10px,1.05vw,12px);border-radius:8px;position:relative}
+.day.blank{visibility:hidden}
+.day.hk{background:var(--hk);color:#fff;font-weight:800;border-radius:50%;width:clamp(25px,2.7vw,32px);height:clamp(25px,2.7vw,32px);justify-self:center;align-self:center}
+.day.today{outline:2px solid var(--us);outline-offset:-2px}
+.day.sunday:not(.hk){color:var(--hk);font-weight:650}
+.day.sunday.hk{color:#fff}
+.tapHint{border-top:1px solid var(--line);padding:8px 12px;color:var(--muted);font-size:10px;text-align:center;background:#fafafa}
+/* Full-screen month view */
+.monthOverlay{display:none;position:fixed;inset:0;z-index:100;background:var(--bg);overflow:auto;padding:max(14px,env(safe-area-inset-top)) clamp(12px,3vw,40px) max(22px,env(safe-area-inset-bottom));}
+.monthToggle:checked ~ .monthOverlay{display:block}
+.overlayTop{max-width:1180px;margin:0 auto 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.overlayYear{color:var(--hk);font-size:13px;font-weight:800}
+.overlayTop h3{margin:1px 0 2px;font-size:clamp(28px,5vw,48px);line-height:1}
+.overlaySub{color:var(--muted);font-size:12px}
+.closeBtn{width:42px;height:42px;border-radius:50%;background:var(--card);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:28px;line-height:1;cursor:pointer;flex:0 0 auto;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.overlayCalendar{max-width:1180px;margin:0 auto;background:var(--card);border-radius:20px;padding:clamp(12px,2vw,24px);box-shadow:0 8px 30px rgba(0,0,0,.07)}
+.overlayCalendar .week span{font-size:clamp(11px,1.3vw,14px);font-weight:700;padding:7px 0;color:var(--muted)}
+.largeDays .day{height:clamp(58px,9vw,100px);font-size:clamp(15px,2.1vw,24px);border-radius:14px;flex-direction:column;gap:5px}
+.largeDays .day.sunday:not(.hk){color:var(--hk)}
+.largeDays .day.hk{width:clamp(42px,6vw,62px);height:clamp(42px,6vw,62px);font-size:clamp(15px,2vw,23px);align-self:center;justify-self:center}
+.dots{display:flex;gap:3px;min-height:15px;align-items:center;justify-content:center;flex-wrap:wrap;max-width:100%;padding:0 2px;}
+.dot{display:inline-flex;width:auto;height:15px;min-width:15px;padding:0 4px;border-radius:999px;background:#999;align-items:center;justify-content:center;gap:2px;font-style:normal;font-size:7px;font-weight:750;line-height:1;color:#fff;white-space:nowrap;max-width:54px;overflow:hidden;}
+.dot::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;box-shadow:0 0 0 1px rgba(255,255,255,.35);}
+.dot.us{background:color-mix(in srgb,var(--us) 15%,transparent);color:var(--us);}
+.dot.uk{background:color-mix(in srgb,var(--uk) 15%,transparent);color:var(--uk);}
+.dot.jp{background:color-mix(in srgb,var(--jp) 15%,transparent);color:var(--jp);}
+.dot.cn{background:color-mix(in srgb,var(--cn) 15%,transparent);color:var(--cn);}
+.dot.tw{background:color-mix(in srgb,var(--tw) 15%,transparent);color:var(--tw);}
+.dot.hk{background:color-mix(in srgb,var(--hk) 15%,transparent);color:var(--hk);}
+/* Keep the date cell clean when several overseas holidays fall on the same day. Full details remain in the list below. */
+.dots:has(.dot:nth-child(3)) .dot:nth-child(n+3){display:none}
+.dots:has(.dot:nth-child(3))::after{content:"＋";display:inline-flex;width:15px;height:15px;border-radius:999px;align-items:center;justify-content:center;background:#eef0f2;color:#666;font-size:9px;font-weight:800;}
+.dot.us::after{content:"美國"}.dot.uk::after{content:"英國"}.dot.jp::after{content:"日本"}.dot.cn::after{content:"中國"}.dot.tw::after{content:"台灣"}.dot.hk::after{content:"香港"}
+.legendDot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#999}
+.legendDot.us{background:var(--us)}
+.legendDot.uk{background:var(--uk)}
+.legendDot.jp{background:var(--jp)}
+.legendDot.cn{background:var(--cn)}
+.legendDot.tw{background:var(--tw)}
+.legendDot.hk{background:var(--hk)}
+.fullLegend{max-width:1180px;margin:13px auto 0;display:flex;flex-wrap:wrap;gap:8px 15px;color:var(--muted);font-size:11px}
+.fullLegend span{display:inline-flex;align-items:center;gap:5px}
+.eventList{max-width:1180px;margin:16px auto 0;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.eventList h4{margin:0 0 7px;font-size:15px}
+.event{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px;line-height:1.35}
+.event:last-child{border-bottom:0}
+.eventDate{min-width:42px;color:var(--muted);font-variant-numeric:tabular-nums}
+.eventCountry{font-weight:650}
+.eventCountry.hk{color:var(--hk)}.eventCountry.us{color:var(--us)}.eventCountry.uk{color:var(--uk)}.eventCountry.jp{color:var(--jp)}.eventCountry.cn{color:var(--cn)}.eventCountry.tw{color:var(--tw)}
+.empty{color:var(--muted);font-size:12px;padding:8px 0}
+.footer{margin:22px 0 8px;color:var(--muted);font-size:10px;line-height:1.5}
+
+/* Leave planner */
+.plannerSource{margin:18px 0 6px;color:var(--muted);font-size:9px;text-align:center}
+body:has(#leavePlan:checked) .day.planDay{outline:1.5px dashed #f5a623;outline-offset:-4px}
+body:has(#leavePlan:checked) .day.planLeave{outline-color:#60a5fa;outline-style:dashed}
+body:has(#leavePlan:checked) .day.planHoliday{outline-color:#f5a623}
+body:has(#leavePlan:checked) .day.planDay.hk{outline-offset:-3px}
+
+.plannerRow{display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;padding-right:2px}
+.plannerSwitch{display:inline-flex;align-items:center;gap:9px;flex:0 0 auto;cursor:pointer;user-select:none}
+.plannerSwitch input{position:absolute;opacity:0;pointer-events:none}
+.plannerTrack{width:44px;height:26px;border-radius:999px;background:#2b3445;border:1px solid #3b465a;position:relative;transition:.2s}
+.plannerTrack:after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.plannerSwitch input:checked + .plannerTrack{background:var(--hk);border-color:var(--hk)}
+.plannerSwitch input:checked + .plannerTrack:after{transform:translateX(18px)}
+.plannerLabel{font-weight:700;color:var(--text);font-size:12px;white-space:nowrap}
+.plannerHint{font-size:10px;color:var(--muted);margin-top:4px}
+.leavePlanMark{display:none;position:relative;z-index:2}
+body:has(#leavePlan:checked) .leavePlanMark{display:block}
+body:has(#leavePlan:checked) .day.planDay{outline:1.5px dashed #f5a623;outline-offset:-3px}
+body:has(#leavePlan:checked) .day.planLeave{outline-color:#60a5fa;outline-style:dashed}
+body:has(#leavePlan:checked) .day.planHoliday{outline-color:#f5a623}
+body:has(#leavePlan:checked) .day.planDay.hk{outline-offset:-2px}
+/* Leave planner is Hong Kong only: hide overseas holiday markers while planning is enabled. */
+body:has(#leavePlan:checked) .day.planDay .dots{display:none}
+.planLegend{display:none;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px;color:var(--muted);font-size:10px}
+body:has(#leavePlan:checked) .planLegend{display:flex}
+.planLegend span{display:inline-flex;align-items:center;gap:5px}
+.planKey{width:13px;height:13px;border:1.5px dashed #f5a623;border-radius:50%;display:inline-block}
+.planKey.leave{border-color:#60a5fa}
+.leaveSummary{display:none;margin:14px 0 20px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px}
+body:has(#leavePlan:checked) .leaveSummary{display:block}
+.leaveSummary h4{margin:0 0 9px;font-size:15px}
+.leavePlanItem{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.leavePlanItem:first-of-type{border-top:0}
+.planBadge{flex:0 0 auto;min-width:24px;height:24px;border-radius:8px;background:var(--hk);color:#fff;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center}
+.planText{min-width:0;font-size:11px;line-height:1.45}
+.planText strong{font-size:12px}
+.planStats{color:var(--hk);font-weight:800}
+.planLeaveDates{color:var(--muted)}
+.planNote{margin-top:8px;color:var(--muted);font-size:9px;line-height:1.45}
+@media(max-width:600px){
+ .plannerRow{align-items:flex-start}
+ .plannerLabel{font-size:10px}
+ .plannerTrack{width:40px;height:24px}.plannerTrack:after{width:17px;height:17px}.plannerSwitch input:checked + .plannerTrack:after{transform:translateX(16px)}
+ .leaveSummary{margin-top:10px;padding:11px 12px}
+ .leavePlanItem{gap:8px;padding:8px 0}
+ .planText{font-size:10px}.planText strong{font-size:11px}
+}
+
+@media(max-width:1100px){.yearGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){
+ .yearGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .app{padding:8px}
+ .monthCard{border-radius:10px}
+ .monthCardHeader{padding:7px 6px 3px}
+ .monthTitle{font-size:16px}
+ .monthCount{font-size:8px}
+ .mini{padding:0 3px 5px}
+ .day{height:28px;font-size:11px;border-radius:6px}
+ .day.hk > span:first-child{width:25px;height:25px}
+ .tapHint{font-size:8px;padding:6px 3px}
+}
+@media(max-width:600px){
+ .notice{font-size:10px;padding:7px 9px;margin-bottom:8px}
+ .yearHeader{margin:10px 2px 6px}
+ .yearHeader span{display:none}
+ .yearHeader h2{font-size:24px}
+ .yearNav{padding:5px 0;gap:5px}
+ .yearNav a{padding:6px 13px;border-radius:10px}
+ /* iPhone: show a compact country label beside each holiday dot. */
+ .dot{font-size:7px;width:auto;min-width:22px;max-width:30px;height:16px;padding:0 4px;border-radius:999px;gap:3px;}
+ .dot::before{width:6px;height:6px;flex:0 0 6px;}
+ .dot.us::after{content:"美國"}.dot.uk::after{content:"英國"}.dot.jp::after{content:"日本"}.dot.cn::after{content:"中國"}.dot.tw::after{content:"台灣"}.dot.hk::after{content:"香港"}
+ .dots{gap:2px;max-width:100%;}
+ .largeDays .day{gap:4px}
+ .largeDays .dots{min-height:16px;}
+}
+@media(max-width:390px){
+ /* Extra-small iPhones: abbreviate only when space is very tight. */
+ .dot{font-size:0;min-width:16px;max-width:16px;width:16px;padding:0;}
+ .dot.us::after{content:"美"}.dot.uk::after{content:"英"}.dot.jp::after{content:"日"}.dot.cn::after{content:"中"}.dot.tw::after{content:"台"}.dot.hk::after{content:"港"}
+}
+@media(max-width:480px){
+ .yearGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ .monthCard{border:0;border-radius:0;box-shadow:none;background:transparent}
+ .monthCardHeader{padding:7px 2px 3px}
+ .monthTitle{font-size:16px}
+ .monthCount{font-size:7px}
+ .mini{padding:0 1px 4px}
+ .week,.days{column-gap:2px}
+ .week span{font-size:8px;padding:2px 0}
+ .day{height:27px;font-size:10px}
+ .day.hk > span:first-child{width:24px;height:24px;font-size:11px}
+ .tapHint{border-top:0;background:transparent;font-size:7px;padding:3px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .largeDays .day{height:clamp(45px,14vw,65px);font-size:15px}
+ .largeDays .day.hk{width:auto;height:clamp(45px,14vw,65px);font-size:15px}
+ .largeDays .day.hk > span:first-child{width:34px;height:34px;font-size:15px}
+ .overlayCalendar{border-radius:15px;padding:8px}
+ .eventList{border-radius:15px}
+}
+@media(max-width:380px){
+ .yearGrid{gap:3px}
+ .week,.days{column-gap:1px}
+ .monthTitle{font-size:15px}
+ .day{height:25px;font-size:10px}
+ .day.hk > span:first-child{width:22px;height:22px}
+ .monthCount{font-size:6px}
+ .tapHint{font-size:6px}
+}
+@media(prefers-color-scheme:dark){
+:root{--bg:#0b1220;--card:#111827;--text:#f9fafb;--muted:#9ca3af;--line:#263244;--hkbg:#351820}
+.monthCard,.overlayCalendar,.eventList,.notice{box-shadow:none}
+.yearNav{background:rgba(11,18,32,.88)}
+.tapHint{background:#0f172a}
+}
+
+/* UI refinement: keep the HK public-holiday badge compact and separate overseas dots from it. */
+.day.hk{background:transparent;color:var(--text);width:auto;height:100%;border-radius:0;}
+.day.hk > span:first-child{display:flex;align-items:center;justify-content:center;background:var(--hk);color:#fff;font-weight:800;border-radius:50%;width:clamp(25px,2.7vw,32px);height:clamp(25px,2.7vw,32px);flex:0 0 auto;}
+.largeDays .day.hk{background:transparent;color:var(--text);width:auto;height:clamp(58px,9vw,100px);}
+.largeDays .day.hk > span:first-child{width:clamp(36px,4.4vw,48px);height:clamp(36px,4.4vw,48px);font-size:clamp(14px,1.8vw,20px);}
+.largeDays .day.hk .dots{margin-top:2px;}
+.day.hk.sunday{color:var(--text);}
+@media(max-width:480px){
+  .largeDays .day.hk{height:clamp(45px,14vw,65px);}
+  .largeDays .day.hk > span:first-child{width:34px;height:34px;font-size:15px;}
+}
+
+/* Final iPhone 3-column overview spacing fix */
+@media (max-width: 600px){
+  .yearGrid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px 7px;
+    align-items:start;
+  }
+  .monthCardHeader{
+    min-width:0;
+  }
+  .monthTitle{
+    white-space:nowrap;
+  }
+  .monthCount{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    min-width:0;
+    text-align:right;
+  }
+  .mini{
+    padding:0 2px 5px;
+  }
+  .week,.days{
+    grid-template-columns:repeat(7,minmax(0,1fr));
+    column-gap:4px;
+  }
+  .week span{
+    min-width:0;
+    text-align:center;
+    font-size:8px;
+  }
+  .day{
+    min-width:0;
+    width:100%;
+    height:28px;
+    padding:0 1px;
+    font-size:10px;
+    line-height:1;
+    font-variant-numeric:tabular-nums;
+    font-feature-settings:"tnum";
+    overflow:visible;
+  }
+  .day > span:first-child{
+    display:block;
+    min-width:0;
+    white-space:nowrap;
+  }
+  .day.hk{
+    width:100%;
+  }
+  .day.hk > span:first-child{
+    width:22px;
+    height:22px;
+    font-size:10px;
+    margin:0 auto;
+    outline:2px solid var(--bg);
+    outline-offset:-1px;
+  }
+}
+@media (max-width: 390px){
+  .yearGrid{gap:8px 5px}
+  .mini{padding-left:1px;padding-right:1px}
+  .week,.days{column-gap:3px}
+  .day{height:27px;font-size:9px}
+  .day.hk > span:first-child{width:21px;height:21px;font-size:9px;margin:0 auto;outline:2px solid var(--bg);outline-offset:-1px}
+}
+@media (max-width: 360px){
+  .yearGrid{gap:7px 4px}
+  .week,.days{column-gap:2px}
+  .day{font-size:8.5px}
+}
+</style>
+</head>
+<body>
+<main class="app">
+<nav class="yearNav"><a href="#year2026">2026</a><a href="#year2027">2027</a></nav>
+<div class="notice"><div class="plannerRow"><div><b>使用方法：</b>首頁只突出顯示香港紅日。撳入任何月份後，會放大全螢幕，並顯示 🇭🇰 香港、🇺🇸 美國、🇬🇧 英國、🇯🇵 日本、🇨🇳 中國大陸、🇹🇼 台灣全部假期。<div class="plannerHint">最佳請假只計香港公眾假期＋星期六、日；開啟後以「請最少工作日、換最多連續休假」方式顯示方案。</div></div><label class="plannerSwitch" for="leavePlan" title="顯示最佳請假方案"><input id="leavePlan" type="checkbox"/><span class="plannerTrack"></span><span class="plannerLabel">最佳請假</span></label></div></div>
+<section class="yearSection" id="year2026">
+<div class="yearHeader"><h2>2026</h2><span>全年總覽 · 只顯示香港紅日</span></div>
+<div class="yearGrid">
+<div class="monthWrap">
+<input class="monthToggle" id="m2026_1" type="checkbox"/>
+<label class="monthCard" for="m2026_1">
+<div class="monthCardHeader"><span class="monthTitle">一月</span><span class="monthCount">1 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planA planHoliday"><span>1</span></div>
+<div class="day planDay planA planLeave"><span>2</span></div>
+<div class="day planDay planA planHoliday"><span>3</span></div>
+<div class="day sunday planDay planA planHoliday"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day sunday"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day sunday"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day sunday"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2026年一月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2026</div>
+<h3>一月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2026_1">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planA planHoliday"><span>1</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot uk" title="英國"></i><i class="dot jp" title="日本"></i><i class="dot us" title="美國"></i></span></div>
+<div class="day planDay planA planLeave"><span>2</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
+<div class="day planDay planA planHoliday"><span>3</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
+<div class="day sunday planDay planA planHoliday"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day sunday"><span>11</span></div>
+<div class="day"><span>12</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day sunday"><span>18</span></div>
+<div class="day"><span>19</span><span class="dots"><i class="dot us" title="美國"></i></span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day sunday"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2026年一月假期</h4>
+<div class="event"><span class="eventDate">1/1</span><span class="eventCountry cn">🇨🇳 中國大陸｜元旦</span></div>
+<div class="event"><span class="eventDate">1/1</span><span class="eventCountry hk">🇭🇰 香港｜元旦</span></div>
+<div class="event"><span class="eventDate">1/1</span><span class="eventCountry jp">🇯🇵 日本｜元日</span></div>
+<div class="event"><span class="eventDate">1/1</span><span class="eventCountry uk">🇬🇧 英國｜New Year's Day</span></div>
+<div class="event"><span class="eventDate">1/1</span><span class="eventCountry us">🇺🇸 美國｜New Year's Day</span></div>
+<div class="event"><span class="eventDate">1/2</span><span class="eventCountry cn">🇨🇳 中國大陸｜元旦假期</span></div>
+<div class="event"><span class="eventDate">1/3</span><span class="eventCountry cn">🇨🇳 中國大陸｜元旦假期</span></div>
+<div class="event"><span class="eventDate">1/12</span><span class="eventCountry jp">🇯🇵 日本｜成人の日</span></div>
+<div class="event"><span class="eventDate">1/19</span><span class="eventCountry us">🇺🇸 美國｜Birthday of Martin Luther King, Jr.</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2026_2" type="checkbox"/>
+<label class="monthCard" for="m2026_2">
+<div class="monthCardHeader"><span class="monthTitle">二月</span><span class="monthCount">3 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day sunday"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day sunday"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day planDay planB planHoliday"><span>14</span></div>
+<div class="day sunday planDay planB planHoliday"><span>15</span></div>
+<div class="day planDay planB planLeave"><span>16</span></div>
+<div class="day hk planDay planB planHoliday"><span>17</span></div>
+<div class="day hk planDay planB planHoliday"><span>18</span></div>
+<div class="day hk planDay planB planHoliday"><span>19</span></div>
+<div class="day planDay planB planLeave"><span>20</span></div>
+<div class="day planDay planB planHoliday"><span>21</span></div>
+<div class="day sunday planDay planB planHoliday"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2026年二月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2026</div>
+<h3>二月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2026_2">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day sunday"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day sunday"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day planDay planB planHoliday"><span>14</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday planDay planB planHoliday"><span>15</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day planDay planB planLeave"><span>16</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot us" title="美國"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planB planHoliday"><span>17</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planB planHoliday"><span>18</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planB planHoliday"><span>19</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day planDay planB planLeave"><span>20</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day planDay planB planHoliday"><span>21</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday planDay planB planHoliday"><span>22</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>23</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>28</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2026年二月假期</h4>
+<div class="event"><span class="eventDate">2/11</span><span class="eventCountry jp">🇯🇵 日本｜建国記念の日</span></div>
+<div class="event"><span class="eventDate">2/14</span><span class="eventCountry tw">🇹🇼 台灣｜春節</span></div>
+<div class="event"><span class="eventDate">2/15</span><span class="eventCountry cn">🇨🇳 中國大陸｜春節</span></div>
+<div class="event"><span class="eventDate">2/15</span><span class="eventCountry tw">🇹🇼 台灣｜春節</span></div>
+<div class="event"><span class="eventDate">2/16</span><span class="eventCountry cn">🇨🇳 中國大陸｜春節</span></div>
+<div class="event"><span class="eventDate">2/16</span><span class="eventCountry tw">🇹🇼 台灣｜春節</span></div>
+<div class="event"><span class="eventDate">2/16</span><span class="eventCountry us">🇺🇸 美國｜Washington's Birthday</span></div>
+<div class="event"><span class="eventDate">2/17</span><span class="eventCountry cn">🇨🇳 中國大陸｜春節</span></div>
+<div class="event"><span class="eventDate">2/17</span><span class="eventCountry hk">🇭🇰 香港｜農曆年初一</span></div>
+<div class="event"><span class="eventDate">2/17</span><span class="eventCountry tw">🇹🇼 台灣｜春節</span></div>
+<div class="event"><span class="eventDate">2/18</span><span class="eventCountry cn">🇨🇳 中國大陸｜春節</span></div>
+<div class="event"><span class="eventDate">2/18</span><span class="eventCountry hk">🇭🇰 香港｜農曆年初二</span></div>
+<div class="event"><span class="eventDate">2/18</span><span class="eventCountry tw">🇹🇼 台灣｜春節</span></div>
+<div class="event"><span class="eventDate">2/19</span><span class="eventCountry cn">🇨🇳 中國大陸｜春節</span></div>
+<div class="event"><span class="eventDate">2/19</span><span class="eventCountry hk">🇭🇰 香港｜農曆年初三</span></div>
+<div class="event"><span class="eventDate">2/19</span><span class="eventCountry tw">🇹🇼 台灣｜春節</span></div>
+<div class="event"><span class="eventDate">2/20</span><span class="eventCountry cn">🇨🇳 中國大陸｜春節</span></div>
+<div class="event"><span class="eventDate">2/20</span><span class="eventCountry tw">🇹🇼 台灣｜春節</span></div>
+<div class="event"><span class="eventDate">2/21</span><span class="eventCountry cn">🇨🇳 中國大陸｜春節</span></div>
+<div class="event"><span class="eventDate">2/21</span><span class="eventCountry tw">🇹🇼 台灣｜春節</span></div>
+<div class="event"><span class="eventDate">2/22</span><span class="eventCountry cn">🇨🇳 中國大陸｜春節</span></div>
+<div class="event"><span class="eventDate">2/22</span><span class="eventCountry tw">🇹🇼 台灣｜春節</span></div>
+<div class="event"><span class="eventDate">2/23</span><span class="eventCountry cn">🇨🇳 中國大陸｜春節</span></div>
+<div class="event"><span class="eventDate">2/23</span><span class="eventCountry jp">🇯🇵 日本｜天皇誕生日</span></div>
+<div class="event"><span class="eventDate">2/27</span><span class="eventCountry tw">🇹🇼 台灣｜和平紀念日</span></div>
+<div class="event"><span class="eventDate">2/28</span><span class="eventCountry tw">🇹🇼 台灣｜和平紀念日</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2026_3" type="checkbox"/>
+<label class="monthCard" for="m2026_3">
+<div class="monthCardHeader"><span class="monthTitle">三月</span><span class="monthCount">沒有香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day sunday"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day sunday"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day sunday"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day sunday"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day sunday"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2026年三月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2026</div>
+<h3>三月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2026_3">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day sunday"><span>1</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day sunday"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day sunday"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>21</span></div>
+<div class="day sunday"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day sunday"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2026年三月假期</h4>
+<div class="event"><span class="eventDate">3/1</span><span class="eventCountry tw">🇹🇼 台灣｜和平紀念日</span></div>
+<div class="event"><span class="eventDate">3/20</span><span class="eventCountry jp">🇯🇵 日本｜春分の日</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2026_4" type="checkbox"/>
+<label class="monthCard" for="m2026_4">
+<div class="monthCardHeader"><span class="monthTitle">四月</span><span class="monthCount">4 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day hk planDay planC planHoliday"><span>3</span></div>
+<div class="day hk planDay planC planHoliday"><span>4</span></div>
+<div class="day sunday planDay planC planHoliday"><span>5</span></div>
+<div class="day hk planDay planC planHoliday"><span>6</span></div>
+<div class="day hk planDay planC planHoliday"><span>7</span></div>
+<div class="day planDay planC planLeave"><span>8</span></div>
+<div class="day planDay planC planLeave"><span>9</span></div>
+<div class="day planDay planC planLeave"><span>10</span></div>
+<div class="day planDay planC planHoliday"><span>11</span></div>
+<div class="day sunday planDay planC planHoliday"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day sunday"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day planDay planD planHoliday"><span>25</span></div>
+<div class="day sunday planDay planD planHoliday"><span>26</span></div>
+<div class="day planDay planD planLeave"><span>27</span></div>
+<div class="day planDay planD planLeave"><span>28</span></div>
+<div class="day planDay planD planLeave"><span>29</span></div>
+<div class="day planDay planD planLeave"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2026年四月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2026</div>
+<h3>四月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2026_4">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day hk planDay planC planHoliday"><span>3</span><span class="dots"><i class="dot uk" title="英國"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planC planHoliday"><span>4</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday planDay planC planHoliday"><span>5</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planC planHoliday"><span>6</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot uk" title="英國"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planC planHoliday"><span>7</span><span class="dots"></span></div>
+<div class="day planDay planC planLeave"><span>8</span></div>
+<div class="day planDay planC planLeave"><span>9</span></div>
+<div class="day planDay planC planLeave"><span>10</span></div>
+<div class="day planDay planC planHoliday"><span>11</span></div>
+<div class="day sunday planDay planC planHoliday"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day sunday"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day planDay planD planHoliday"><span>25</span></div>
+<div class="day sunday planDay planD planHoliday"><span>26</span></div>
+<div class="day planDay planD planLeave"><span>27</span></div>
+<div class="day planDay planD planLeave"><span>28</span></div>
+<div class="day planDay planD planLeave"><span>29</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day planDay planD planLeave"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2026年四月假期</h4>
+<div class="event"><span class="eventDate">4/3</span><span class="eventCountry hk">🇭🇰 香港｜耶穌受難節</span></div>
+<div class="event"><span class="eventDate">4/3</span><span class="eventCountry tw">🇹🇼 台灣｜兒童節及清明節</span></div>
+<div class="event"><span class="eventDate">4/3</span><span class="eventCountry uk">🇬🇧 英國｜Good Friday</span></div>
+<div class="event"><span class="eventDate">4/4</span><span class="eventCountry cn">🇨🇳 中國大陸｜清明節</span></div>
+<div class="event"><span class="eventDate">4/4</span><span class="eventCountry hk">🇭🇰 香港｜耶穌受難節翌日</span></div>
+<div class="event"><span class="eventDate">4/4</span><span class="eventCountry tw">🇹🇼 台灣｜兒童節及清明節</span></div>
+<div class="event"><span class="eventDate">4/5</span><span class="eventCountry cn">🇨🇳 中國大陸｜清明節</span></div>
+<div class="event"><span class="eventDate">4/5</span><span class="eventCountry tw">🇹🇼 台灣｜兒童節及清明節</span></div>
+<div class="event"><span class="eventDate">4/6</span><span class="eventCountry cn">🇨🇳 中國大陸｜清明節</span></div>
+<div class="event"><span class="eventDate">4/6</span><span class="eventCountry hk">🇭🇰 香港｜清明節翌日（補假）</span></div>
+<div class="event"><span class="eventDate">4/6</span><span class="eventCountry tw">🇹🇼 台灣｜兒童節及清明節</span></div>
+<div class="event"><span class="eventDate">4/6</span><span class="eventCountry uk">🇬🇧 英國｜Easter Monday</span></div>
+<div class="event"><span class="eventDate">4/7</span><span class="eventCountry hk">🇭🇰 香港｜復活節星期一翌日（增補假）</span></div>
+<div class="event"><span class="eventDate">4/29</span><span class="eventCountry jp">🇯🇵 日本｜昭和の日</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2026_5" type="checkbox"/>
+<label class="monthCard" for="m2026_5">
+<div class="monthCardHeader"><span class="monthTitle">五月</span><span class="monthCount">2 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planD planHoliday"><span>1</span></div>
+<div class="day planDay planD planHoliday"><span>2</span></div>
+<div class="day sunday planDay planD planHoliday"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day sunday"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day sunday"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day planDay planE planHoliday"><span>23</span></div>
+<div class="day sunday planDay planE planHoliday"><span>24</span></div>
+<div class="day hk planDay planE planHoliday"><span>25</span></div>
+<div class="day planDay planE planLeave"><span>26</span></div>
+<div class="day planDay planE planLeave"><span>27</span></div>
+<div class="day planDay planE planLeave"><span>28</span></div>
+<div class="day planDay planE planLeave"><span>29</span></div>
+<div class="day planDay planE planHoliday"><span>30</span></div>
+<div class="day sunday planDay planE planHoliday"><span>31</span></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2026年五月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2026</div>
+<h3>五月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2026_5">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planD planHoliday"><span>1</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day planDay planD planHoliday"><span>2</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday planDay planD planHoliday"><span>3</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot jp" title="日本"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>4</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot uk" title="英國"></i><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>5</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>6</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day sunday"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day sunday"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day planDay planE planHoliday"><span>23</span></div>
+<div class="day sunday planDay planE planHoliday"><span>24</span></div>
+<div class="day hk planDay planE planHoliday"><span>25</span><span class="dots"><i class="dot uk" title="英國"></i><i class="dot us" title="美國"></i></span></div>
+<div class="day planDay planE planLeave"><span>26</span></div>
+<div class="day planDay planE planLeave"><span>27</span></div>
+<div class="day planDay planE planLeave"><span>28</span></div>
+<div class="day planDay planE planLeave"><span>29</span></div>
+<div class="day planDay planE planHoliday"><span>30</span></div>
+<div class="day sunday planDay planE planHoliday"><span>31</span></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2026年五月假期</h4>
+<div class="event"><span class="eventDate">5/1</span><span class="eventCountry cn">🇨🇳 中國大陸｜勞動節</span></div>
+<div class="event"><span class="eventDate">5/1</span><span class="eventCountry hk">🇭🇰 香港｜勞動節</span></div>
+<div class="event"><span class="eventDate">5/1</span><span class="eventCountry tw">🇹🇼 台灣｜勞動節</span></div>
+<div class="event"><span class="eventDate">5/2</span><span class="eventCountry cn">🇨🇳 中國大陸｜勞動節</span></div>
+<div class="event"><span class="eventDate">5/2</span><span class="eventCountry tw">🇹🇼 台灣｜勞動節</span></div>
+<div class="event"><span class="eventDate">5/3</span><span class="eventCountry cn">🇨🇳 中國大陸｜勞動節</span></div>
+<div class="event"><span class="eventDate">5/3</span><span class="eventCountry jp">🇯🇵 日本｜憲法記念日</span></div>
+<div class="event"><span class="eventDate">5/3</span><span class="eventCountry tw">🇹🇼 台灣｜勞動節</span></div>
+<div class="event"><span class="eventDate">5/4</span><span class="eventCountry cn">🇨🇳 中國大陸｜勞動節</span></div>
+<div class="event"><span class="eventDate">5/4</span><span class="eventCountry jp">🇯🇵 日本｜みどりの日</span></div>
+<div class="event"><span class="eventDate">5/4</span><span class="eventCountry uk">🇬🇧 英國｜Early May bank holiday</span></div>
+<div class="event"><span class="eventDate">5/5</span><span class="eventCountry cn">🇨🇳 中國大陸｜勞動節</span></div>
+<div class="event"><span class="eventDate">5/5</span><span class="eventCountry jp">🇯🇵 日本｜こどもの日</span></div>
+<div class="event"><span class="eventDate">5/6</span><span class="eventCountry jp">🇯🇵 日本｜休日（振替）</span></div>
+<div class="event"><span class="eventDate">5/25</span><span class="eventCountry hk">🇭🇰 香港｜佛誕翌日（補假）</span></div>
+<div class="event"><span class="eventDate">5/25</span><span class="eventCountry uk">🇬🇧 英國｜Spring bank holiday</span></div>
+<div class="event"><span class="eventDate">5/25</span><span class="eventCountry us">🇺🇸 美國｜Memorial Day</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2026_6" type="checkbox"/>
+<label class="monthCard" for="m2026_6">
+<div class="monthCardHeader"><span class="monthTitle">六月</span><span class="monthCount">1 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day sunday"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day planDay planF planHoliday"><span>13</span></div>
+<div class="day sunday planDay planF planHoliday"><span>14</span></div>
+<div class="day planDay planF planLeave"><span>15</span></div>
+<div class="day planDay planF planLeave"><span>16</span></div>
+<div class="day planDay planF planLeave"><span>17</span></div>
+<div class="day planDay planF planLeave"><span>18</span></div>
+<div class="day hk planDay planF planHoliday"><span>19</span></div>
+<div class="day planDay planF planHoliday"><span>20</span></div>
+<div class="day sunday planDay planF planHoliday"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day planDay planG planHoliday"><span>27</span></div>
+<div class="day sunday planDay planG planHoliday"><span>28</span></div>
+<div class="day planDay planG planLeave"><span>29</span></div>
+<div class="day planDay planG planLeave"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2026年六月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2026</div>
+<h3>六月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2026_6">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day sunday"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day planDay planF planHoliday"><span>13</span></div>
+<div class="day sunday planDay planF planHoliday"><span>14</span></div>
+<div class="day planDay planF planLeave"><span>15</span></div>
+<div class="day planDay planF planLeave"><span>16</span></div>
+<div class="day planDay planF planLeave"><span>17</span></div>
+<div class="day planDay planF planLeave"><span>18</span></div>
+<div class="day hk planDay planF planHoliday"><span>19</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot us" title="美國"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day planDay planF planHoliday"><span>20</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday planDay planF planHoliday"><span>21</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day planDay planG planHoliday"><span>27</span></div>
+<div class="day sunday planDay planG planHoliday"><span>28</span></div>
+<div class="day planDay planG planLeave"><span>29</span></div>
+<div class="day planDay planG planLeave"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2026年六月假期</h4>
+<div class="event"><span class="eventDate">6/19</span><span class="eventCountry cn">🇨🇳 中國大陸｜端午節</span></div>
+<div class="event"><span class="eventDate">6/19</span><span class="eventCountry hk">🇭🇰 香港｜端午節</span></div>
+<div class="event"><span class="eventDate">6/19</span><span class="eventCountry tw">🇹🇼 台灣｜端午節</span></div>
+<div class="event"><span class="eventDate">6/19</span><span class="eventCountry us">🇺🇸 美國｜Juneteenth National Independence Day</span></div>
+<div class="event"><span class="eventDate">6/20</span><span class="eventCountry cn">🇨🇳 中國大陸｜端午節</span></div>
+<div class="event"><span class="eventDate">6/20</span><span class="eventCountry tw">🇹🇼 台灣｜端午節</span></div>
+<div class="event"><span class="eventDate">6/21</span><span class="eventCountry cn">🇨🇳 中國大陸｜端午節</span></div>
+<div class="event"><span class="eventDate">6/21</span><span class="eventCountry tw">🇹🇼 台灣｜端午節</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2026_7" type="checkbox"/>
+<label class="monthCard" for="m2026_7">
+<div class="monthCardHeader"><span class="monthTitle">七月</span><span class="monthCount">1 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planG planHoliday"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day sunday"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day sunday"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day sunday"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day sunday"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2026年七月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2026</div>
+<h3>七月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2026_7">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planG planHoliday"><span>1</span><span class="dots"></span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span><span class="dots"><i class="dot us" title="美國"></i></span></div>
+<div class="day"><span>4</span></div>
+<div class="day sunday"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day sunday"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day sunday"><span>19</span></div>
+<div class="day"><span>20</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day sunday"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2026年七月假期</h4>
+<div class="event"><span class="eventDate">7/1</span><span class="eventCountry hk">🇭🇰 香港｜香港特別行政區成立紀念日</span></div>
+<div class="event"><span class="eventDate">7/3</span><span class="eventCountry us">🇺🇸 美國｜Independence Day (observed)</span></div>
+<div class="event"><span class="eventDate">7/20</span><span class="eventCountry jp">🇯🇵 日本｜海の日</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2026_8" type="checkbox"/>
+<label class="monthCard" for="m2026_8">
+<div class="monthCardHeader"><span class="monthTitle">八月</span><span class="monthCount">沒有香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day sunday"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day sunday"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day sunday"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day sunday"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day sunday"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2026年八月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2026</div>
+<h3>八月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2026_8">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day sunday"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day sunday"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day sunday"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day sunday"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day sunday"><span>30</span></div>
+<div class="day"><span>31</span><span class="dots"><i class="dot uk" title="英國"></i></span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2026年八月假期</h4>
+<div class="event"><span class="eventDate">8/11</span><span class="eventCountry jp">🇯🇵 日本｜山の日</span></div>
+<div class="event"><span class="eventDate">8/31</span><span class="eventCountry uk">🇬🇧 英國｜Summer bank holiday</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2026_9" type="checkbox"/>
+<label class="monthCard" for="m2026_9">
+<div class="monthCardHeader"><span class="monthTitle">九月</span><span class="monthCount">1 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day sunday"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day sunday"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day sunday"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day hk planDay planH planHoliday"><span>26</span></div>
+<div class="day sunday planDay planH planHoliday"><span>27</span></div>
+<div class="day planDay planH planLeave"><span>28</span></div>
+<div class="day planDay planH planLeave"><span>29</span></div>
+<div class="day planDay planH planLeave"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2026年九月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2026</div>
+<h3>九月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2026_9">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day sunday"><span>6</span></div>
+<div class="day"><span>7</span><span class="dots"><i class="dot us" title="美國"></i></span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day sunday"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day sunday"><span>20</span></div>
+<div class="day"><span>21</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>22</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>23</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planH planHoliday"><span>26</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday planDay planH planHoliday"><span>27</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day planDay planH planLeave"><span>28</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day planDay planH planLeave"><span>29</span></div>
+<div class="day planDay planH planLeave"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2026年九月假期</h4>
+<div class="event"><span class="eventDate">9/7</span><span class="eventCountry us">🇺🇸 美國｜Labor Day</span></div>
+<div class="event"><span class="eventDate">9/21</span><span class="eventCountry jp">🇯🇵 日本｜敬老の日</span></div>
+<div class="event"><span class="eventDate">9/22</span><span class="eventCountry jp">🇯🇵 日本｜休日（国民の休日）</span></div>
+<div class="event"><span class="eventDate">9/23</span><span class="eventCountry jp">🇯🇵 日本｜秋分の日</span></div>
+<div class="event"><span class="eventDate">9/25</span><span class="eventCountry cn">🇨🇳 中國大陸｜中秋節</span></div>
+<div class="event"><span class="eventDate">9/25</span><span class="eventCountry tw">🇹🇼 台灣｜中秋節／孔子誕辰紀念日／教師節</span></div>
+<div class="event"><span class="eventDate">9/26</span><span class="eventCountry cn">🇨🇳 中國大陸｜中秋節</span></div>
+<div class="event"><span class="eventDate">9/26</span><span class="eventCountry hk">🇭🇰 香港｜中秋節翌日</span></div>
+<div class="event"><span class="eventDate">9/26</span><span class="eventCountry tw">🇹🇼 台灣｜中秋節／孔子誕辰紀念日／教師節</span></div>
+<div class="event"><span class="eventDate">9/27</span><span class="eventCountry cn">🇨🇳 中國大陸｜中秋節</span></div>
+<div class="event"><span class="eventDate">9/27</span><span class="eventCountry tw">🇹🇼 台灣｜中秋節／孔子誕辰紀念日／教師節</span></div>
+<div class="event"><span class="eventDate">9/28</span><span class="eventCountry tw">🇹🇼 台灣｜中秋節／孔子誕辰紀念日／教師節</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2026_10" type="checkbox"/>
+<label class="monthCard" for="m2026_10">
+<div class="monthCardHeader"><span class="monthTitle">十月</span><span class="monthCount">2 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planH planHoliday"><span>1</span></div>
+<div class="day today planDay planH planLeave"><span>2</span></div>
+<div class="day planDay planH planHoliday"><span>3</span></div>
+<div class="day sunday planDay planH planHoliday"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day sunday"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day planDay planI planHoliday"><span>17</span></div>
+<div class="day sunday planDay planI planHoliday"><span>18</span></div>
+<div class="day hk planDay planI planHoliday"><span>19</span></div>
+<div class="day planDay planI planLeave"><span>20</span></div>
+<div class="day planDay planI planLeave"><span>21</span></div>
+<div class="day planDay planI planLeave"><span>22</span></div>
+<div class="day planDay planI planLeave"><span>23</span></div>
+<div class="day planDay planI planHoliday"><span>24</span></div>
+<div class="day sunday planDay planI planHoliday"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2026年十月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2026</div>
+<h3>十月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2026_10">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planH planHoliday"><span>1</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
+<div class="day today planDay planH planLeave"><span>2</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
+<div class="day planDay planH planHoliday"><span>3</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
+<div class="day sunday planDay planH planHoliday"><span>4</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
+<div class="day"><span>5</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
+<div class="day"><span>6</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
+<div class="day"><span>7</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>10</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday"><span>11</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>12</span><span class="dots"><i class="dot jp" title="日本"></i><i class="dot us" title="美國"></i></span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day planDay planI planHoliday"><span>17</span></div>
+<div class="day sunday planDay planI planHoliday"><span>18</span></div>
+<div class="day hk planDay planI planHoliday"><span>19</span><span class="dots"></span></div>
+<div class="day planDay planI planLeave"><span>20</span></div>
+<div class="day planDay planI planLeave"><span>21</span></div>
+<div class="day planDay planI planLeave"><span>22</span></div>
+<div class="day planDay planI planLeave"><span>23</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day planDay planI planHoliday"><span>24</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday planDay planI planHoliday"><span>25</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2026年十月假期</h4>
+<div class="event"><span class="eventDate">10/1</span><span class="eventCountry cn">🇨🇳 中國大陸｜國慶節</span></div>
+<div class="event"><span class="eventDate">10/1</span><span class="eventCountry hk">🇭🇰 香港｜國慶日</span></div>
+<div class="event"><span class="eventDate">10/2</span><span class="eventCountry cn">🇨🇳 中國大陸｜國慶節</span></div>
+<div class="event"><span class="eventDate">10/3</span><span class="eventCountry cn">🇨🇳 中國大陸｜國慶節</span></div>
+<div class="event"><span class="eventDate">10/4</span><span class="eventCountry cn">🇨🇳 中國大陸｜國慶節</span></div>
+<div class="event"><span class="eventDate">10/5</span><span class="eventCountry cn">🇨🇳 中國大陸｜國慶節</span></div>
+<div class="event"><span class="eventDate">10/6</span><span class="eventCountry cn">🇨🇳 中國大陸｜國慶節</span></div>
+<div class="event"><span class="eventDate">10/7</span><span class="eventCountry cn">🇨🇳 中國大陸｜國慶節</span></div>
+<div class="event"><span class="eventDate">10/9</span><span class="eventCountry tw">🇹🇼 台灣｜國慶日</span></div>
+<div class="event"><span class="eventDate">10/10</span><span class="eventCountry tw">🇹🇼 台灣｜國慶日</span></div>
+<div class="event"><span class="eventDate">10/11</span><span class="eventCountry tw">🇹🇼 台灣｜國慶日</span></div>
+<div class="event"><span class="eventDate">10/12</span><span class="eventCountry jp">🇯🇵 日本｜スポーツの日</span></div>
+<div class="event"><span class="eventDate">10/12</span><span class="eventCountry us">🇺🇸 美國｜Columbus Day</span></div>
+<div class="event"><span class="eventDate">10/19</span><span class="eventCountry hk">🇭🇰 香港｜重陽節翌日（補假）</span></div>
+<div class="event"><span class="eventDate">10/23</span><span class="eventCountry tw">🇹🇼 台灣｜臺灣光復暨金門古寧頭大捷紀念日</span></div>
+<div class="event"><span class="eventDate">10/24</span><span class="eventCountry tw">🇹🇼 台灣｜臺灣光復暨金門古寧頭大捷紀念日</span></div>
+<div class="event"><span class="eventDate">10/25</span><span class="eventCountry tw">🇹🇼 台灣｜臺灣光復暨金門古寧頭大捷紀念日</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2026_11" type="checkbox"/>
+<label class="monthCard" for="m2026_11">
+<div class="monthCardHeader"><span class="monthTitle">十一月</span><span class="monthCount">沒有香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day sunday"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day sunday"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day sunday"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day sunday"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day sunday"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2026年十一月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2026</div>
+<h3>十一月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2026_11">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day sunday"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day sunday"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span><span class="dots"><i class="dot us" title="美國"></i></span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day sunday"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day sunday"><span>22</span></div>
+<div class="day"><span>23</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span><span class="dots"><i class="dot us" title="美國"></i></span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day sunday"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2026年十一月假期</h4>
+<div class="event"><span class="eventDate">11/3</span><span class="eventCountry jp">🇯🇵 日本｜文化の日</span></div>
+<div class="event"><span class="eventDate">11/11</span><span class="eventCountry us">🇺🇸 美國｜Veterans Day</span></div>
+<div class="event"><span class="eventDate">11/23</span><span class="eventCountry jp">🇯🇵 日本｜勤労感謝の日</span></div>
+<div class="event"><span class="eventDate">11/26</span><span class="eventCountry us">🇺🇸 美國｜Thanksgiving Day</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2026_12" type="checkbox"/>
+<label class="monthCard" for="m2026_12">
+<div class="monthCardHeader"><span class="monthTitle">十二月</span><span class="monthCount">2 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day sunday"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day sunday"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day planDay planJ planHoliday"><span>19</span></div>
+<div class="day sunday planDay planJ planHoliday"><span>20</span></div>
+<div class="day planDay planJ planLeave"><span>21</span></div>
+<div class="day planDay planJ planLeave"><span>22</span></div>
+<div class="day planDay planJ planLeave"><span>23</span></div>
+<div class="day planDay planJ planLeave"><span>24</span></div>
+<div class="day hk planDay planJ planHoliday"><span>25</span></div>
+<div class="day hk planDay planJ planHoliday"><span>26</span></div>
+<div class="day sunday planDay planJ planHoliday"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2026年十二月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2026</div>
+<h3>十二月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2026_12">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day sunday"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day sunday"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day planDay planJ planHoliday"><span>19</span></div>
+<div class="day sunday planDay planJ planHoliday"><span>20</span></div>
+<div class="day planDay planJ planLeave"><span>21</span></div>
+<div class="day planDay planJ planLeave"><span>22</span></div>
+<div class="day planDay planJ planLeave"><span>23</span></div>
+<div class="day planDay planJ planLeave"><span>24</span></div>
+<div class="day hk planDay planJ planHoliday"><span>25</span><span class="dots"><i class="dot uk" title="英國"></i><i class="dot us" title="美國"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planJ planHoliday"><span>26</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday planDay planJ planHoliday"><span>27</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>28</span><span class="dots"><i class="dot uk" title="英國"></i></span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2026年十二月假期</h4>
+<div class="event"><span class="eventDate">12/25</span><span class="eventCountry hk">🇭🇰 香港｜聖誕節</span></div>
+<div class="event"><span class="eventDate">12/25</span><span class="eventCountry tw">🇹🇼 台灣｜行憲紀念日</span></div>
+<div class="event"><span class="eventDate">12/25</span><span class="eventCountry uk">🇬🇧 英國｜Christmas Day</span></div>
+<div class="event"><span class="eventDate">12/25</span><span class="eventCountry us">🇺🇸 美國｜Christmas Day</span></div>
+<div class="event"><span class="eventDate">12/26</span><span class="eventCountry hk">🇭🇰 香港｜聖誕節後第一個周日</span></div>
+<div class="event"><span class="eventDate">12/26</span><span class="eventCountry tw">🇹🇼 台灣｜行憲紀念日</span></div>
+<div class="event"><span class="eventDate">12/27</span><span class="eventCountry tw">🇹🇼 台灣｜行憲紀念日</span></div>
+<div class="event"><span class="eventDate">12/28</span><span class="eventCountry uk">🇬🇧 英國｜Boxing Day (substitute day)</span></div>
+</div>
+</section>
+</div></div><div class="planLegend"><span><i class="planKey"></i>建議連假範圍</span><span><i class="planKey leave"></i>需要請假嘅日子</span></div><div class="leaveSummary"><h4>2026 最佳請假方案</h4><div class="leavePlanItem"><span class="planBadge">A</span><div class="planText"><strong>元旦｜1/1–1/4</strong> · <span class="planStats">4日連休，請 1 日</span> · <span class="planLeaveDates">請假：1/2</span></div></div><div class="leavePlanItem"><span class="planBadge">B</span><div class="planText"><strong>農曆新年｜2/14–2/22</strong> · <span class="planStats">9日連休，請 2 日</span> · <span class="planLeaveDates">請假：2/16, 2/20</span></div></div><div class="leavePlanItem"><span class="planBadge">C</span><div class="planText"><strong>復活節＋清明節｜4/3–4/12</strong> · <span class="planStats">10日連休，請 3 日</span> · <span class="planLeaveDates">請假：4/8, 4/9, 4/10</span></div></div><div class="leavePlanItem"><span class="planBadge">D</span><div class="planText"><strong>勞動節｜4/25–5/3</strong> · <span class="planStats">9日連休，請 4 日</span> · <span class="planLeaveDates">請假：4/27, 4/28, 4/29, 4/30</span></div></div><div class="leavePlanItem"><span class="planBadge">E</span><div class="planText"><strong>佛誕｜5/23–5/31</strong> · <span class="planStats">9日連休，請 4 日</span> · <span class="planLeaveDates">請假：5/26, 5/27, 5/28, 5/29</span></div></div><div class="leavePlanItem"><span class="planBadge">F</span><div class="planText"><strong>端午節｜6/13–6/21</strong> · <span class="planStats">9日連休，請 4 日</span> · <span class="planLeaveDates">請假：6/15, 6/16, 6/17, 6/18</span></div></div><div class="leavePlanItem"><span class="planBadge">G</span><div class="planText"><strong>七一｜6/27–7/1</strong> · <span class="planStats">5日連休，請 2 日</span> · <span class="planLeaveDates">請假：6/29, 6/30</span></div></div><div class="leavePlanItem"><span class="planBadge">H</span><div class="planText"><strong>國慶日｜9/26–10/4</strong> · <span class="planStats">9日連休，請 4 日</span> · <span class="planLeaveDates">請假：9/28, 9/29, 9/30, 10/2</span></div></div><div class="leavePlanItem"><span class="planBadge">I</span><div class="planText"><strong>重陽節｜10/17–10/25</strong> · <span class="planStats">9日連休，請 4 日</span> · <span class="planLeaveDates">請假：10/20, 10/21, 10/22, 10/23</span></div></div><div class="leavePlanItem"><span class="planBadge">J</span><div class="planText"><strong>聖誕節｜12/19–12/27</strong> · <span class="planStats">9日連休，請 4 日</span> · <span class="planLeaveDates">請假：12/21, 12/22, 12/23, 12/24</span></div></div><div class="planNote">計算基準：香港政府公眾假期＋星期六、日；以 5 天工作制計算，請假只計平日工作日。方案參考 2026 香港請假攻略常見算法，並以政府公布日期作校正；不計公司額外假期、年假政策或個人安排。</div></div>
+</section>
+<section class="yearSection" id="year2027">
+<div class="yearHeader"><h2>2027</h2><span>全年總覽 · 只顯示香港紅日</span></div>
+<div class="yearGrid">
+<div class="monthWrap">
+<input class="monthToggle" id="m2027_1" type="checkbox"/>
+<label class="monthCard" for="m2027_1">
+<div class="monthCardHeader"><span class="monthTitle">一月</span><span class="monthCount">1 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planA planHoliday"><span>1</span></div>
+<div class="day planDay planA planHoliday"><span>2</span></div>
+<div class="day sunday planDay planA planHoliday"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day sunday"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day sunday"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day sunday"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day sunday"><span>31</span></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2027年一月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2027</div>
+<h3>一月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2027_1">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planA planHoliday"><span>1</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot uk" title="英國"></i><i class="dot jp" title="日本"></i><i class="dot us" title="美國"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day planDay planA planHoliday"><span>2</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday planDay planA planHoliday"><span>3</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day sunday"><span>10</span></div>
+<div class="day"><span>11</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day sunday"><span>17</span></div>
+<div class="day"><span>18</span><span class="dots"><i class="dot us" title="美國"></i></span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day sunday"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day sunday"><span>31</span></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2027年一月假期</h4>
+<div class="event"><span class="eventDate">1/1</span><span class="eventCountry cn">🇨🇳 中國大陸｜元旦（節日日期；2027放假安排待國務院公布）</span></div>
+<div class="event"><span class="eventDate">1/1</span><span class="eventCountry hk">🇭🇰 香港｜元旦</span></div>
+<div class="event"><span class="eventDate">1/1</span><span class="eventCountry jp">🇯🇵 日本｜元日</span></div>
+<div class="event"><span class="eventDate">1/1</span><span class="eventCountry tw">🇹🇼 台灣｜中華民國開國紀念日</span></div>
+<div class="event"><span class="eventDate">1/1</span><span class="eventCountry uk">🇬🇧 英國｜New Year's Day</span></div>
+<div class="event"><span class="eventDate">1/1</span><span class="eventCountry us">🇺🇸 美國｜New Year's Day</span></div>
+<div class="event"><span class="eventDate">1/2</span><span class="eventCountry tw">🇹🇼 台灣｜中華民國開國紀念日</span></div>
+<div class="event"><span class="eventDate">1/3</span><span class="eventCountry tw">🇹🇼 台灣｜中華民國開國紀念日</span></div>
+<div class="event"><span class="eventDate">1/11</span><span class="eventCountry jp">🇯🇵 日本｜成人の日</span></div>
+<div class="event"><span class="eventDate">1/18</span><span class="eventCountry us">🇺🇸 美國｜Birthday of Martin Luther King, Jr.</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2027_2" type="checkbox"/>
+<label class="monthCard" for="m2027_2">
+<div class="monthCardHeader"><span class="monthTitle">二月</span><span class="monthCount">3 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day hk planDay planB planHoliday"><span>6</span></div>
+<div class="day sunday planDay planB planHoliday"><span>7</span></div>
+<div class="day hk planDay planB planHoliday"><span>8</span></div>
+<div class="day hk planDay planB planHoliday"><span>9</span></div>
+<div class="day planDay planB planLeave"><span>10</span></div>
+<div class="day planDay planB planLeave"><span>11</span></div>
+<div class="day planDay planB planLeave"><span>12</span></div>
+<div class="day planDay planB planHoliday"><span>13</span></div>
+<div class="day sunday planDay planB planHoliday"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day sunday"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day sunday"><span>28</span></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2027年二月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2027</div>
+<h3>二月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2027_2">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>5</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planB planHoliday"><span>6</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday planDay planB planHoliday"><span>7</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planB planHoliday"><span>8</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planB planHoliday"><span>9</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day planDay planB planLeave"><span>10</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day planDay planB planLeave"><span>11</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day planDay planB planLeave"><span>12</span></div>
+<div class="day planDay planB planHoliday"><span>13</span></div>
+<div class="day sunday planDay planB planHoliday"><span>14</span></div>
+<div class="day"><span>15</span><span class="dots"><i class="dot us" title="美國"></i></span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day sunday"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday"><span>28</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2027年二月假期</h4>
+<div class="event"><span class="eventDate">2/4</span><span class="eventCountry tw">🇹🇼 台灣｜除夕及春節</span></div>
+<div class="event"><span class="eventDate">2/5</span><span class="eventCountry tw">🇹🇼 台灣｜除夕及春節</span></div>
+<div class="event"><span class="eventDate">2/6</span><span class="eventCountry cn">🇨🇳 中國大陸｜春節（農曆正月初一；2027放假安排待國務院公布）</span></div>
+<div class="event"><span class="eventDate">2/6</span><span class="eventCountry hk">🇭🇰 香港｜農曆年初一</span></div>
+<div class="event"><span class="eventDate">2/6</span><span class="eventCountry tw">🇹🇼 台灣｜除夕及春節</span></div>
+<div class="event"><span class="eventDate">2/7</span><span class="eventCountry tw">🇹🇼 台灣｜除夕及春節</span></div>
+<div class="event"><span class="eventDate">2/8</span><span class="eventCountry hk">🇭🇰 香港｜農曆年初三</span></div>
+<div class="event"><span class="eventDate">2/8</span><span class="eventCountry tw">🇹🇼 台灣｜除夕及春節</span></div>
+<div class="event"><span class="eventDate">2/9</span><span class="eventCountry hk">🇭🇰 香港｜農曆年初四（年初二補假）</span></div>
+<div class="event"><span class="eventDate">2/9</span><span class="eventCountry tw">🇹🇼 台灣｜除夕及春節</span></div>
+<div class="event"><span class="eventDate">2/10</span><span class="eventCountry tw">🇹🇼 台灣｜除夕及春節</span></div>
+<div class="event"><span class="eventDate">2/11</span><span class="eventCountry jp">🇯🇵 日本｜建国記念の日</span></div>
+<div class="event"><span class="eventDate">2/15</span><span class="eventCountry us">🇺🇸 美國｜Washington's Birthday</span></div>
+<div class="event"><span class="eventDate">2/23</span><span class="eventCountry jp">🇯🇵 日本｜天皇誕生日</span></div>
+<div class="event"><span class="eventDate">2/27</span><span class="eventCountry tw">🇹🇼 台灣｜和平紀念日</span></div>
+<div class="event"><span class="eventDate">2/28</span><span class="eventCountry tw">🇹🇼 台灣｜和平紀念日</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2027_3" type="checkbox"/>
+<label class="monthCard" for="m2027_3">
+<div class="monthCardHeader"><span class="monthTitle">三月</span><span class="monthCount">3 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day sunday"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day sunday"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day sunday"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day hk planDay planC planHoliday"><span>26</span></div>
+<div class="day hk planDay planC planHoliday"><span>27</span></div>
+<div class="day sunday planDay planC planHoliday"><span>28</span></div>
+<div class="day hk planDay planC planHoliday"><span>29</span></div>
+<div class="day planDay planC planLeave"><span>30</span></div>
+<div class="day planDay planC planLeave"><span>31</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2027年三月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2027</div>
+<h3>三月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2027_3">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day"><span>1</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day sunday"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day sunday"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day sunday"><span>21</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>22</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day hk planDay planC planHoliday"><span>26</span><span class="dots"><i class="dot uk" title="英國"></i></span></div>
+<div class="day hk planDay planC planHoliday"><span>27</span><span class="dots"></span></div>
+<div class="day sunday planDay planC planHoliday"><span>28</span></div>
+<div class="day hk planDay planC planHoliday"><span>29</span><span class="dots"><i class="dot uk" title="英國"></i></span></div>
+<div class="day planDay planC planLeave"><span>30</span></div>
+<div class="day planDay planC planLeave"><span>31</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2027年三月假期</h4>
+<div class="event"><span class="eventDate">3/1</span><span class="eventCountry tw">🇹🇼 台灣｜和平紀念日</span></div>
+<div class="event"><span class="eventDate">3/21</span><span class="eventCountry jp">🇯🇵 日本｜春分の日</span></div>
+<div class="event"><span class="eventDate">3/22</span><span class="eventCountry jp">🇯🇵 日本｜休日（振替）</span></div>
+<div class="event"><span class="eventDate">3/26</span><span class="eventCountry hk">🇭🇰 香港｜耶穌受難節</span></div>
+<div class="event"><span class="eventDate">3/26</span><span class="eventCountry uk">🇬🇧 英國｜Good Friday</span></div>
+<div class="event"><span class="eventDate">3/27</span><span class="eventCountry hk">🇭🇰 香港｜耶穌受難節翌日</span></div>
+<div class="event"><span class="eventDate">3/29</span><span class="eventCountry hk">🇭🇰 香港｜復活節星期一</span></div>
+<div class="event"><span class="eventDate">3/29</span><span class="eventCountry uk">🇬🇧 英國｜Easter Monday</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2027_4" type="checkbox"/>
+<label class="monthCard" for="m2027_4">
+<div class="monthCardHeader"><span class="monthTitle">四月</span><span class="monthCount">1 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day planDay planC planLeave"><span>1</span></div>
+<div class="day planDay planC planLeave"><span>2</span></div>
+<div class="day planDay planC planHoliday"><span>3</span></div>
+<div class="day sunday planDay planC planHoliday"><span>4</span></div>
+<div class="day hk planDay planC planHoliday"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day sunday"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day sunday"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day sunday"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2027年四月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2027</div>
+<h3>四月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2027_4">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day planDay planC planLeave"><span>1</span></div>
+<div class="day planDay planC planLeave"><span>2</span></div>
+<div class="day planDay planC planHoliday"><span>3</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday planDay planC planHoliday"><span>4</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planC planHoliday"><span>5</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>6</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day sunday"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day sunday"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day sunday"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>30</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2027年四月假期</h4>
+<div class="event"><span class="eventDate">4/3</span><span class="eventCountry tw">🇹🇼 台灣｜兒童節及清明節</span></div>
+<div class="event"><span class="eventDate">4/4</span><span class="eventCountry tw">🇹🇼 台灣｜兒童節及清明節</span></div>
+<div class="event"><span class="eventDate">4/5</span><span class="eventCountry cn">🇨🇳 中國大陸｜清明節（節日日期；2027放假安排待國務院公布）</span></div>
+<div class="event"><span class="eventDate">4/5</span><span class="eventCountry hk">🇭🇰 香港｜清明節</span></div>
+<div class="event"><span class="eventDate">4/5</span><span class="eventCountry tw">🇹🇼 台灣｜兒童節及清明節</span></div>
+<div class="event"><span class="eventDate">4/6</span><span class="eventCountry tw">🇹🇼 台灣｜兒童節及清明節</span></div>
+<div class="event"><span class="eventDate">4/29</span><span class="eventCountry jp">🇯🇵 日本｜昭和の日</span></div>
+<div class="event"><span class="eventDate">4/30</span><span class="eventCountry tw">🇹🇼 台灣｜勞動節</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2027_5" type="checkbox"/>
+<label class="monthCard" for="m2027_5">
+<div class="monthCardHeader"><span class="monthTitle">五月</span><span class="monthCount">2 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk"><span>1</span></div>
+<div class="day sunday"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day sunday"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day hk planDay planD planHoliday"><span>13</span></div>
+<div class="day planDay planD planLeave"><span>14</span></div>
+<div class="day planDay planD planHoliday"><span>15</span></div>
+<div class="day sunday planDay planD planHoliday"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day sunday"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day sunday"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2027年五月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2027</div>
+<h3>五月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2027_5">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk"><span>1</span><span class="dots"><i class="dot cn" title="中國大陸"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday"><span>2</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>3</span><span class="dots"><i class="dot uk" title="英國"></i><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>4</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>5</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day sunday"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day hk planDay planD planHoliday"><span>13</span><span class="dots"></span></div>
+<div class="day planDay planD planLeave"><span>14</span></div>
+<div class="day planDay planD planHoliday"><span>15</span></div>
+<div class="day sunday planDay planD planHoliday"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day sunday"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day sunday"><span>30</span></div>
+<div class="day"><span>31</span><span class="dots"><i class="dot uk" title="英國"></i><i class="dot us" title="美國"></i></span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2027年五月假期</h4>
+<div class="event"><span class="eventDate">5/1</span><span class="eventCountry cn">🇨🇳 中國大陸｜勞動節（節日日期；2027放假安排待國務院公布）</span></div>
+<div class="event"><span class="eventDate">5/1</span><span class="eventCountry hk">🇭🇰 香港｜勞動節</span></div>
+<div class="event"><span class="eventDate">5/1</span><span class="eventCountry tw">🇹🇼 台灣｜勞動節</span></div>
+<div class="event"><span class="eventDate">5/2</span><span class="eventCountry tw">🇹🇼 台灣｜勞動節</span></div>
+<div class="event"><span class="eventDate">5/3</span><span class="eventCountry jp">🇯🇵 日本｜憲法記念日</span></div>
+<div class="event"><span class="eventDate">5/3</span><span class="eventCountry uk">🇬🇧 英國｜Early May bank holiday</span></div>
+<div class="event"><span class="eventDate">5/4</span><span class="eventCountry jp">🇯🇵 日本｜みどりの日</span></div>
+<div class="event"><span class="eventDate">5/5</span><span class="eventCountry jp">🇯🇵 日本｜こどもの日</span></div>
+<div class="event"><span class="eventDate">5/13</span><span class="eventCountry hk">🇭🇰 香港｜佛誕</span></div>
+<div class="event"><span class="eventDate">5/31</span><span class="eventCountry uk">🇬🇧 英國｜Spring bank holiday</span></div>
+<div class="event"><span class="eventDate">5/31</span><span class="eventCountry us">🇺🇸 美國｜Memorial Day</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2027_6" type="checkbox"/>
+<label class="monthCard" for="m2027_6">
+<div class="monthCardHeader"><span class="monthTitle">六月</span><span class="monthCount">1 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day planDay planE planHoliday"><span>5</span></div>
+<div class="day sunday planDay planE planHoliday"><span>6</span></div>
+<div class="day planDay planE planLeave"><span>7</span></div>
+<div class="day planDay planE planLeave"><span>8</span></div>
+<div class="day hk planDay planE planHoliday"><span>9</span></div>
+<div class="day planDay planE planLeave"><span>10</span></div>
+<div class="day planDay planE planLeave"><span>11</span></div>
+<div class="day planDay planE planHoliday"><span>12</span></div>
+<div class="day sunday planDay planE planHoliday"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day sunday"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day planDay planF planHoliday"><span>26</span></div>
+<div class="day sunday planDay planF planHoliday"><span>27</span></div>
+<div class="day planDay planF planLeave"><span>28</span></div>
+<div class="day planDay planF planLeave"><span>29</span></div>
+<div class="day planDay planF planLeave"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2027年六月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2027</div>
+<h3>六月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2027_6">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day planDay planE planHoliday"><span>5</span></div>
+<div class="day sunday planDay planE planHoliday"><span>6</span></div>
+<div class="day planDay planE planLeave"><span>7</span></div>
+<div class="day planDay planE planLeave"><span>8</span></div>
+<div class="day hk planDay planE planHoliday"><span>9</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
+<div class="day planDay planE planLeave"><span>10</span></div>
+<div class="day planDay planE planLeave"><span>11</span></div>
+<div class="day planDay planE planHoliday"><span>12</span></div>
+<div class="day sunday planDay planE planHoliday"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span><span class="dots"><i class="dot us" title="美國"></i></span></div>
+<div class="day"><span>19</span></div>
+<div class="day sunday"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day planDay planF planHoliday"><span>26</span></div>
+<div class="day sunday planDay planF planHoliday"><span>27</span></div>
+<div class="day planDay planF planLeave"><span>28</span></div>
+<div class="day planDay planF planLeave"><span>29</span></div>
+<div class="day planDay planF planLeave"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2027年六月假期</h4>
+<div class="event"><span class="eventDate">6/9</span><span class="eventCountry cn">🇨🇳 中國大陸｜端午節（節日日期；2027放假安排待國務院公布）</span></div>
+<div class="event"><span class="eventDate">6/9</span><span class="eventCountry hk">🇭🇰 香港｜端午節</span></div>
+<div class="event"><span class="eventDate">6/18</span><span class="eventCountry us">🇺🇸 美國｜Juneteenth National Independence Day (observed)</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2027_7" type="checkbox"/>
+<label class="monthCard" for="m2027_7">
+<div class="monthCardHeader"><span class="monthTitle">七月</span><span class="monthCount">1 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planF planHoliday"><span>1</span></div>
+<div class="day planDay planF planLeave"><span>2</span></div>
+<div class="day planDay planF planHoliday"><span>3</span></div>
+<div class="day sunday planDay planF planHoliday"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day sunday"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day sunday"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day sunday"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2027年七月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2027</div>
+<h3>七月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2027_7">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planF planHoliday"><span>1</span><span class="dots"></span></div>
+<div class="day planDay planF planLeave"><span>2</span></div>
+<div class="day planDay planF planHoliday"><span>3</span></div>
+<div class="day sunday planDay planF planHoliday"><span>4</span></div>
+<div class="day"><span>5</span><span class="dots"><i class="dot us" title="美國"></i></span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day sunday"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day sunday"><span>18</span></div>
+<div class="day"><span>19</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day sunday"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2027年七月假期</h4>
+<div class="event"><span class="eventDate">7/1</span><span class="eventCountry hk">🇭🇰 香港｜香港特別行政區成立紀念日</span></div>
+<div class="event"><span class="eventDate">7/5</span><span class="eventCountry us">🇺🇸 美國｜Independence Day (observed)</span></div>
+<div class="event"><span class="eventDate">7/19</span><span class="eventCountry jp">🇯🇵 日本｜海の日</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2027_8" type="checkbox"/>
+<label class="monthCard" for="m2027_8">
+<div class="monthCardHeader"><span class="monthTitle">八月</span><span class="monthCount">沒有香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day sunday"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day sunday"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day sunday"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day sunday"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day sunday"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2027年八月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2027</div>
+<h3>八月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2027_8">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day sunday"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day sunday"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day sunday"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day sunday"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day sunday"><span>29</span></div>
+<div class="day"><span>30</span><span class="dots"><i class="dot uk" title="英國"></i></span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2027年八月假期</h4>
+<div class="event"><span class="eventDate">8/11</span><span class="eventCountry jp">🇯🇵 日本｜山の日</span></div>
+<div class="event"><span class="eventDate">8/30</span><span class="eventCountry uk">🇬🇧 英國｜Summer bank holiday</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2027_9" type="checkbox"/>
+<label class="monthCard" for="m2027_9">
+<div class="monthCardHeader"><span class="monthTitle">九月</span><span class="monthCount">1 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day sunday"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day sunday"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day hk planDay planG planHoliday"><span>16</span></div>
+<div class="day planDay planG planLeave"><span>17</span></div>
+<div class="day planDay planG planHoliday"><span>18</span></div>
+<div class="day sunday planDay planG planHoliday"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day sunday"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2027年九月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2027</div>
+<h3>九月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2027_9">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day sunday"><span>5</span></div>
+<div class="day"><span>6</span><span class="dots"><i class="dot us" title="美國"></i></span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day sunday"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
+<div class="day hk planDay planG planHoliday"><span>16</span><span class="dots"></span></div>
+<div class="day planDay planG planLeave"><span>17</span></div>
+<div class="day planDay planG planHoliday"><span>18</span></div>
+<div class="day sunday planDay planG planHoliday"><span>19</span></div>
+<div class="day"><span>20</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day sunday"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2027年九月假期</h4>
+<div class="event"><span class="eventDate">9/6</span><span class="eventCountry us">🇺🇸 美國｜Labor Day</span></div>
+<div class="event"><span class="eventDate">9/15</span><span class="eventCountry cn">🇨🇳 中國大陸｜中秋節（節日日期；2027放假安排待國務院公布）</span></div>
+<div class="event"><span class="eventDate">9/16</span><span class="eventCountry hk">🇭🇰 香港｜中秋節翌日</span></div>
+<div class="event"><span class="eventDate">9/20</span><span class="eventCountry jp">🇯🇵 日本｜敬老の日</span></div>
+<div class="event"><span class="eventDate">9/23</span><span class="eventCountry jp">🇯🇵 日本｜秋分の日</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2027_10" type="checkbox"/>
+<label class="monthCard" for="m2027_10">
+<div class="monthCardHeader"><span class="monthTitle">十月</span><span class="monthCount">2 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planH planHoliday"><span>1</span></div>
+<div class="day planDay planH planHoliday"><span>2</span></div>
+<div class="day sunday planDay planH planHoliday"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day hk planDay planI planHoliday"><span>8</span></div>
+<div class="day planDay planI planHoliday"><span>9</span></div>
+<div class="day sunday planDay planI planHoliday"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day sunday"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day sunday"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day sunday"><span>31</span></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2027年十月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2027</div>
+<h3>十月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2027_10">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day hk planDay planH planHoliday"><span>1</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
+<div class="day planDay planH planHoliday"><span>2</span></div>
+<div class="day sunday planDay planH planHoliday"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day hk planDay planI planHoliday"><span>8</span><span class="dots"></span></div>
+<div class="day planDay planI planHoliday"><span>9</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday planDay planI planHoliday"><span>10</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>11</span><span class="dots"><i class="dot jp" title="日本"></i><i class="dot us" title="美國"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day sunday"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday"><span>24</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>25</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day sunday"><span>31</span></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2027年十月假期</h4>
+<div class="event"><span class="eventDate">10/1</span><span class="eventCountry cn">🇨🇳 中國大陸｜國慶節（節日日期；2027放假安排待國務院公布）</span></div>
+<div class="event"><span class="eventDate">10/1</span><span class="eventCountry hk">🇭🇰 香港｜國慶日</span></div>
+<div class="event"><span class="eventDate">10/8</span><span class="eventCountry hk">🇭🇰 香港｜重陽節</span></div>
+<div class="event"><span class="eventDate">10/9</span><span class="eventCountry tw">🇹🇼 台灣｜國慶日</span></div>
+<div class="event"><span class="eventDate">10/10</span><span class="eventCountry tw">🇹🇼 台灣｜國慶日</span></div>
+<div class="event"><span class="eventDate">10/11</span><span class="eventCountry jp">🇯🇵 日本｜スポーツの日</span></div>
+<div class="event"><span class="eventDate">10/11</span><span class="eventCountry tw">🇹🇼 台灣｜國慶日</span></div>
+<div class="event"><span class="eventDate">10/11</span><span class="eventCountry us">🇺🇸 美國｜Columbus Day</span></div>
+<div class="event"><span class="eventDate">10/23</span><span class="eventCountry tw">🇹🇼 台灣｜臺灣光復暨金門古寧頭大捷紀念日</span></div>
+<div class="event"><span class="eventDate">10/24</span><span class="eventCountry tw">🇹🇼 台灣｜臺灣光復暨金門古寧頭大捷紀念日</span></div>
+<div class="event"><span class="eventDate">10/25</span><span class="eventCountry tw">🇹🇼 台灣｜臺灣光復暨金門古寧頭大捷紀念日</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2027_11" type="checkbox"/>
+<label class="monthCard" for="m2027_11">
+<div class="monthCardHeader"><span class="monthTitle">十一月</span><span class="monthCount">沒有香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day sunday"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day sunday"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day sunday"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day sunday"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2027年十一月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2027</div>
+<h3>十一月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2027_11">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>4</span></div>
+<div class="day"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day sunday"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span><span class="dots"><i class="dot us" title="美國"></i></span></div>
+<div class="day"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day sunday"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day sunday"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span><span class="dots"><i class="dot jp" title="日本"></i></span></div>
+<div class="day"><span>24</span></div>
+<div class="day"><span>25</span><span class="dots"><i class="dot us" title="美國"></i></span></div>
+<div class="day"><span>26</span></div>
+<div class="day"><span>27</span></div>
+<div class="day sunday"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2027年十一月假期</h4>
+<div class="event"><span class="eventDate">11/3</span><span class="eventCountry jp">🇯🇵 日本｜文化の日</span></div>
+<div class="event"><span class="eventDate">11/11</span><span class="eventCountry us">🇺🇸 美國｜Veterans Day</span></div>
+<div class="event"><span class="eventDate">11/23</span><span class="eventCountry jp">🇯🇵 日本｜勤労感謝の日</span></div>
+<div class="event"><span class="eventDate">11/25</span><span class="eventCountry us">🇺🇸 美國｜Thanksgiving Day</span></div>
+</div>
+</section>
+</div>
+<div class="monthWrap">
+<input class="monthToggle" id="m2027_12" type="checkbox"/>
+<label class="monthCard" for="m2027_12">
+<div class="monthCardHeader"><span class="monthTitle">十二月</span><span class="monthCount">2 個香港紅日</span></div>
+<div class="mini">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day sunday"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day sunday"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day sunday"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span></div>
+<div class="day hk planDay planJ planHoliday"><span>25</span></div>
+<div class="day sunday planDay planJ planHoliday"><span>26</span></div>
+<div class="day hk planDay planJ planHoliday"><span>27</span></div>
+<div class="day"><span>28</span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="tapHint">點擊查看本月全部地區假期</div>
+</label>
+<section aria-label="2027年十二月詳細月曆" class="monthOverlay">
+<div class="overlayTop">
+<div>
+<div class="overlayYear">2027</div>
+<h3>十二月</h3>
+<div class="overlaySub">香港紅日 + 美國・英國・日本・中國大陸・台灣</div>
+</div>
+<label aria-label="關閉" class="closeBtn" for="m2027_12">×</label>
+</div>
+<div class="overlayCalendar">
+<div class="week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+<div class="days largeDays"><div class="day blank"></div>
+<div class="day blank"></div>
+<div class="day"><span>1</span></div>
+<div class="day"><span>2</span></div>
+<div class="day"><span>3</span></div>
+<div class="day"><span>4</span></div>
+<div class="day sunday"><span>5</span></div>
+<div class="day"><span>6</span></div>
+<div class="day"><span>7</span></div>
+<div class="day"><span>8</span></div>
+<div class="day"><span>9</span></div>
+<div class="day"><span>10</span></div>
+<div class="day"><span>11</span></div>
+<div class="day sunday"><span>12</span></div>
+<div class="day"><span>13</span></div>
+<div class="day"><span>14</span></div>
+<div class="day"><span>15</span></div>
+<div class="day"><span>16</span></div>
+<div class="day"><span>17</span></div>
+<div class="day"><span>18</span></div>
+<div class="day sunday"><span>19</span></div>
+<div class="day"><span>20</span></div>
+<div class="day"><span>21</span></div>
+<div class="day"><span>22</span></div>
+<div class="day"><span>23</span></div>
+<div class="day"><span>24</span><span class="dots"><i class="dot us" title="美國"></i><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planJ planHoliday"><span>25</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day sunday planDay planJ planHoliday"><span>26</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day hk planDay planJ planHoliday"><span>27</span><span class="dots"><i class="dot uk" title="英國"></i></span></div>
+<div class="day"><span>28</span><span class="dots"><i class="dot uk" title="英國"></i></span></div>
+<div class="day"><span>29</span></div>
+<div class="day"><span>30</span></div>
+<div class="day"><span>31</span><span class="dots"><i class="dot tw" title="台灣"></i></span></div>
+<div class="day blank"></div>
+<div class="day blank sunday"></div></div>
+</div>
+<div class="fullLegend">
+<span><i class="legendDot hk"></i>香港</span>
+<span><i class="legendDot us"></i>美國</span>
+<span><i class="legendDot uk"></i>英國</span>
+<span><i class="legendDot jp"></i>日本</span>
+<span><i class="legendDot cn"></i>中國大陸</span>
+<span><i class="legendDot tw"></i>台灣</span>
+</div>
+<div class="eventList">
+<h4>2027年十二月假期</h4>
+<div class="event"><span class="eventDate">12/24</span><span class="eventCountry tw">🇹🇼 台灣｜行憲紀念日</span></div>
+<div class="event"><span class="eventDate">12/24</span><span class="eventCountry us">🇺🇸 美國｜Christmas Day (observed)</span></div>
+<div class="event"><span class="eventDate">12/25</span><span class="eventCountry hk">🇭🇰 香港｜聖誕節</span></div>
+<div class="event"><span class="eventDate">12/25</span><span class="eventCountry tw">🇹🇼 台灣｜行憲紀念日</span></div>
+<div class="event"><span class="eventDate">12/26</span><span class="eventCountry tw">🇹🇼 台灣｜行憲紀念日</span></div>
+<div class="event"><span class="eventDate">12/27</span><span class="eventCountry hk">🇭🇰 香港｜聖誕節後第一個周日</span></div>
+<div class="event"><span class="eventDate">12/27</span><span class="eventCountry uk">🇬🇧 英國｜Christmas Day (substitute day)</span></div>
+<div class="event"><span class="eventDate">12/28</span><span class="eventCountry uk">🇬🇧 英國｜Boxing Day (substitute day)</span></div>
+<div class="event"><span class="eventDate">12/31</span><span class="eventCountry tw">🇹🇼 台灣｜2028年元旦補假</span></div>
+</div>
+</section>
+</div></div><div class="planLegend"><span><i class="planKey"></i>建議連假範圍</span><span><i class="planKey leave"></i>需要請假嘅日子</span></div><div class="leaveSummary"><h4>2027 最佳請假方案</h4><div class="leavePlanItem"><span class="planBadge">A</span><div class="planText"><strong>元旦｜1/1–1/3</strong> · <span class="planStats">3日連休，不用請假</span> · <span class="planLeaveDates">請假：—</span></div></div><div class="leavePlanItem"><span class="planBadge">B</span><div class="planText"><strong>農曆新年｜2/6–2/14</strong> · <span class="planStats">9日連休，請 3 日</span> · <span class="planLeaveDates">請假：2/10, 2/11, 2/12</span></div></div><div class="leavePlanItem"><span class="planBadge">C</span><div class="planText"><strong>復活節＋清明節｜3/26–4/5</strong> · <span class="planStats">11日連休，請 4 日</span> · <span class="planLeaveDates">請假：3/30, 3/31, 4/1, 4/2</span></div></div><div class="leavePlanItem"><span class="planBadge">D</span><div class="planText"><strong>佛誕｜5/13–5/16</strong> · <span class="planStats">4日連休，請 1 日</span> · <span class="planLeaveDates">請假：5/14</span></div></div><div class="leavePlanItem"><span class="planBadge">E</span><div class="planText"><strong>端午節｜6/5–6/13</strong> · <span class="planStats">9日連休，請 4 日</span> · <span class="planLeaveDates">請假：6/7, 6/8, 6/10, 6/11</span></div></div><div class="leavePlanItem"><span class="planBadge">F</span><div class="planText"><strong>七一｜6/26–7/4</strong> · <span class="planStats">9日連休，請 4 日</span> · <span class="planLeaveDates">請假：6/28, 6/29, 6/30, 7/2</span></div></div><div class="leavePlanItem"><span class="planBadge">G</span><div class="planText"><strong>中秋節翌日｜9/16–9/19</strong> · <span class="planStats">4日連休，請 1 日</span> · <span class="planLeaveDates">請假：9/17</span></div></div><div class="leavePlanItem"><span class="planBadge">H</span><div class="planText"><strong>國慶日｜10/1–10/3</strong> · <span class="planStats">3日連休，不用請假</span> · <span class="planLeaveDates">請假：—</span></div></div><div class="leavePlanItem"><span class="planBadge">I</span><div class="planText"><strong>重陽節｜10/8–10/10</strong> · <span class="planStats">3日連休，不用請假</span> · <span class="planLeaveDates">請假：—</span></div></div><div class="leavePlanItem"><span class="planBadge">J</span><div class="planText"><strong>聖誕節｜12/25–12/27</strong> · <span class="planStats">3日連休，不用請假</span> · <span class="planLeaveDates">請假：—</span></div></div><div class="planNote">計算基準：香港政府公眾假期＋星期六、日；以 5 天工作制計算，請假只計平日工作日。方案參考 2026 香港請假攻略常見算法，並以政府公布日期作校正；不計公司額外假期、年假政策或個人安排。</div></div>
+</section>
+<div class="footer">
+  台灣假期按行政院人事行政總處 2026／2027 年政府行政機關辦公日曆表整理；不包括學校假期。政府辦公日曆主要適用於政府行政機關，民間企業放假安排可能不同。
+</div>
+</main>
+<div class="plannerSource">最佳請假參考：香港政府 2026/2027 公眾假期＋香港常見請假攻略。</div></body>
+</html>
