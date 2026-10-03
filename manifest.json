@@ -1,0 +1,31 @@
+{
+  "name": "香港月曆",
+  "short_name": "香港月曆",
+  "description": "香港公眾假期及全球假期月曆",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f4f6",
+  "theme_color": "#e9573f",
+  "icons": [
+    {
+      "src": "./hk-calendar-icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./hk-calendar-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./hk-calendar-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
