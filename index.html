@@ -293,13 +293,20 @@ body:has(#leavePlan:checked) .leaveSummary{display:block}
   .day{font-size:8.5px}
 }
 </style>
+<meta name="apple-mobile-web-app-title" content="香港月曆"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#e9573f"/>
+<link rel="apple-touch-icon" sizes="180x180" href="hk-calendar-icon-180.png"/>
+<link rel="icon" type="image/png" sizes="192x192" href="hk-calendar-icon-192.png"/>
+<link rel="icon" type="image/png" sizes="512x512" href="hk-calendar-icon-512.png"/>
 </head>
 <body>
 <main class="app">
 <nav class="yearNav"><a href="#year2026">2026</a><a href="#year2027">2027</a></nav>
-<div class="notice"><div class="plannerRow"><div><b><div class="plannerHint">最佳請假只計香港公眾假期＋星期六、日；開啟後以「請最少工作日、換最多連續休假」方式顯示方案。</div></div><label class="plannerSwitch" for="leavePlan" title="顯示最佳請假方案"><input id="leavePlan" type="checkbox"/><span class="plannerTrack"></span><span class="plannerLabel">最佳請假</span></label></div></div>
+<div class="notice"><div class="plannerRow"><label class="plannerSwitch" for="leavePlan" title="顯示最佳請假方案"><input id="leavePlan" type="checkbox"/><span class="plannerTrack"></span><span class="plannerLabel">最佳請假</span></label></div></div>
 <section class="yearSection" id="year2026">
-<div class="yearHeader"><h2>2026</h2><span>全年總覽 · 只顯示香港假期</span></div>
+<div class="yearHeader"><h2>2026</h2><span>全年總覽 · 只顯示香港紅日</span></div>
 <div class="yearGrid">
 <div class="monthWrap">
 <input class="monthToggle" id="m2026_1" type="checkbox"/>
@@ -1368,7 +1375,7 @@ body:has(#leavePlan:checked) .leaveSummary{display:block}
 <div class="day blank"></div>
 <div class="day blank"></div>
 <div class="day hk planDay planH planHoliday"><span>1</span></div>
-<div class="day today planDay planH planLeave"><span>2</span></div>
+<div class="day planDay planH planLeave"><span>2</span></div>
 <div class="day planDay planH planHoliday"><span>3</span></div>
 <div class="day sunday planDay planH planHoliday"><span>4</span></div>
 <div class="day"><span>5</span></div>
@@ -1417,7 +1424,7 @@ body:has(#leavePlan:checked) .leaveSummary{display:block}
 <div class="day blank"></div>
 <div class="day blank"></div>
 <div class="day hk planDay planH planHoliday"><span>1</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
-<div class="day today planDay planH planLeave"><span>2</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
+<div class="day planDay planH planLeave"><span>2</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
 <div class="day planDay planH planHoliday"><span>3</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
 <div class="day sunday planDay planH planHoliday"><span>4</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
 <div class="day"><span>5</span><span class="dots"><i class="dot cn" title="中國大陸"></i></span></div>
@@ -3071,5 +3078,43 @@ body:has(#leavePlan:checked) .leaveSummary{display:block}
 </div></div><div class="planLegend"><span><i class="planKey"></i>建議連假範圍</span><span><i class="planKey leave"></i>需要請假嘅日子</span></div><div class="leaveSummary"><h4>2027 最佳請假方案</h4><div class="leavePlanItem"><span class="planBadge">A</span><div class="planText"><strong>元旦｜1/1–1/3</strong> · <span class="planStats">3日連休，不用請假</span> · <span class="planLeaveDates">請假：—</span></div></div><div class="leavePlanItem"><span class="planBadge">B</span><div class="planText"><strong>農曆新年｜2/6–2/14</strong> · <span class="planStats">9日連休，請 3 日</span> · <span class="planLeaveDates">請假：2/10, 2/11, 2/12</span></div></div><div class="leavePlanItem"><span class="planBadge">C</span><div class="planText"><strong>復活節＋清明節｜3/26–4/5</strong> · <span class="planStats">11日連休，請 4 日</span> · <span class="planLeaveDates">請假：3/30, 3/31, 4/1, 4/2</span></div></div><div class="leavePlanItem"><span class="planBadge">D</span><div class="planText"><strong>佛誕｜5/13–5/16</strong> · <span class="planStats">4日連休，請 1 日</span> · <span class="planLeaveDates">請假：5/14</span></div></div><div class="leavePlanItem"><span class="planBadge">E</span><div class="planText"><strong>端午節｜6/5–6/13</strong> · <span class="planStats">9日連休，請 4 日</span> · <span class="planLeaveDates">請假：6/7, 6/8, 6/10, 6/11</span></div></div><div class="leavePlanItem"><span class="planBadge">F</span><div class="planText"><strong>七一｜6/26–7/4</strong> · <span class="planStats">9日連休，請 4 日</span> · <span class="planLeaveDates">請假：6/28, 6/29, 6/30, 7/2</span></div></div><div class="leavePlanItem"><span class="planBadge">G</span><div class="planText"><strong>中秋節翌日｜9/16–9/19</strong> · <span class="planStats">4日連休，請 1 日</span> · <span class="planLeaveDates">請假：9/17</span></div></div><div class="leavePlanItem"><span class="planBadge">H</span><div class="planText"><strong>國慶日｜10/1–10/3</strong> · <span class="planStats">3日連休，不用請假</span> · <span class="planLeaveDates">請假：—</span></div></div><div class="leavePlanItem"><span class="planBadge">I</span><div class="planText"><strong>重陽節｜10/8–10/10</strong> · <span class="planStats">3日連休，不用請假</span> · <span class="planLeaveDates">請假：—</span></div></div><div class="leavePlanItem"><span class="planBadge">J</span><div class="planText"><strong>聖誕節｜12/25–12/27</strong> · <span class="planStats">3日連休，不用請假</span> · <span class="planLeaveDates">請假：—</span></div></div><div class="planNote">計算基準：香港政府公眾假期＋星期六、日；以 5 天工作制計算，請假只計平日工作日。方案參考 2026 香港請假攻略常見算法，並以政府公布日期作校正；不計公司額外假期、年假政策或個人安排。</div></div>
 </section>
 </main>
+<script>
+(function () {
+  // Highlight today's date dynamically using the device/browser's local date.
+  // This runs every time the page loads, so the calendar never gets stuck on
+  // the date when the HTML was generated.
+  function markToday() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
+
+    document.querySelectorAll('.today').forEach(el => el.classList.remove('today'));
+
+    const yearSection = document.getElementById('year' + year);
+    if (!yearSection) return;
+
+    const monthWraps = yearSection.querySelectorAll('.monthWrap');
+    const monthWrap = monthWraps[month - 1];
+    if (!monthWrap) return;
+
+    // Mark the matching day in both the annual mini-calendar and the
+    // full-screen monthly calendar.
+    monthWrap.querySelectorAll('.day:not(.blank)').forEach(day => {
+      const number = day.querySelector(':scope > span:first-child');
+      if (number && Number(number.textContent.trim()) === date) {
+        day.classList.add('today');
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', markToday);
+  } else {
+    markToday();
+  }
+})();
+</script>
+
 </body>
 </html>
